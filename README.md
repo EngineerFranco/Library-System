@@ -1,6 +1,6 @@
 # Library-System
 
-# Library System with crud using Nodejs, Express, and JWT Authentication
+Library System with crud using Nodejs, Express, and JWT Authentication
 
-# Restful API CRUD
-# Authentication Login
+1. Restful API CRUD
+2. Authentication Login
