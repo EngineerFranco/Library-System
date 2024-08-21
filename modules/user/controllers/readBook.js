@@ -1,15 +1,17 @@
 import { AppError, BadGateway, BadRequest, Unauthorized } from "../services/error.js";
 import { getBookById } from "../services/connection.js";
+import chalk from 'chalk';
+
 async function readBook(req, res){
-    console.log('This is Read of Books')
+    console.log(chalk.blackBright.bgGreen.bold('This is Read of Books'));
     try{
-        const id = req.params.id
+        const id = req.params.id;
         console.log(`REQ: ${id}`);
         const data = await getBookById(id);
-        console.log("Data:" , data)
+        console.log("Data:" , data);
         
         if(!data || data.length === 0){
-            throw new BadRequest(`No books found for ${id}.`)
+            throw new BadRequest(`BOOK_NOT_FOUND`)
         }
         
         const response = {

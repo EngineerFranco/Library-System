@@ -1,12 +1,14 @@
 import { AppError, BadGateway, BadRequest, Unauthorized } from "../services/error.js";
 import { getAllBooks } from "../services/connection.js";
+import chalk from 'chalk';
+
 async function readBook(req, res){
-    console.log('This is Read of Books')
+    console.log(chalk.blackBright.bgGreen.bold('This is Read of All Books'));
     try{
 
         const data = await getAllBooks();
         if(!data || data === 0){
-            throw new BadRequest('No books available!')
+            throw new BadRequest('NO_BOOKS_AVAILABLE')
         }
         const response = {
             httpCode: 200,

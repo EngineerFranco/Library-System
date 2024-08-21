@@ -1,5 +1,5 @@
 import pkg from 'pg';
-const { Pool } = pkg; 
+const { Pool } = pkg;
 
 import dotenv from 'dotenv';
 import { AppError, BadGateway, Unauthorized, BadRequest } from './error.js';
@@ -16,78 +16,76 @@ const pool = new Pool({
 
 export default pool;
 
-
 export async function getAllBooks() {
   let client;
   try {
     client = await pool.connect();
-
     const query = 'SELECT * FROM books';
     const result = await client.query(query);
-    const data = result.rows;
-    return data; 
-  } catch (error) {
-    console.log(`Error: ${error.message}`);
-    throw new BadGateway('Error getting books!');
-  } finally {
-    if (client) {
-      client.release();
+    if (result.rowCount === 0) {
+      throw new BadRequest('NO_BOOKS_FOUND');
     }
-  } 
+    return result.rows;
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    if (error instanceof BadRequest) {
+      throw error;
+    }
+    throw new BadGateway('ERROR_FETCHING_BOOKS');
+  } finally {
+    if (client) client.release();
+  }
 }
 
 export async function getBookById(id) {
   let client;
   try {
     client = await pool.connect();
-
-    const query = `SELECT * FROM books WHERE id = $1`;
+    const query = 'SELECT * FROM books WHERE id = $1';
     const result = await client.query(query, [id]);
-    const data = result.rows;
-    return data;
-
-  } catch (error) {
-    console.log(`Error: ${error.message}`);
-    throw new BadGateway('Error getting book!');
-  } finally {
-    if (client) {
-      client.release();
+    if (result.rowCount === 0) {
+      throw new BadRequest('BOOK_NOT_FOUND');
     }
-  } 
+    return result.rows[0]; // Assuming you want a single book
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    if (error instanceof BadRequest) {
+      throw error;
+    }
+    throw new BadGateway('ERROR_FETCHING_BOOK');
+  } finally {
+    if (client) client.release();
+  }
 }
 
-export async function saveBook(reqData){
+export async function saveBook(reqData) {
   let client;
-  console.log("Req Data", reqData)
   try {
     client = await pool.connect();
-
     const query = `
-    INSERT INTO books (title, author, published_date)
-    VALUES ($1, $2, $3)
-    RETURNING *;
-  `;
+      INSERT INTO books (title, author, published_date)
+      VALUES ($1, $2, $3)
+      RETURNING *;
+    `;
     const values = [
       reqData.title,
       reqData.author,
-      reqData.publishedDate
+      reqData.publishedDate,
     ];
-    console.log("Query Values:", values);
     const result = await client.query(query, values);
-    if(result.rows[0].length === 0){
-      return false;
-    }else{
-      return true;
+    if (result.rowCount === 0) {
+      throw new BadRequest('NO_BOOK_CREATED');
     }
-
+    return result.rows[0];
   } catch (error) {
-    console.log(`Error: ${error.message}`);
-    throw new BadGateway('Error saving book!');
-  } finally {
-    if (client) {
-      client.release();
+    console.error(`Error: ${error.message}`);
+    if (error instanceof BadRequest) {
+      throw error;
     }
-  } 
+    throw new BadGateway('ERROR_CREATING_BOOK');
+  } finally {
+    if (client) client.release();
+  }
 }
 
 export async function deleteBookById(id) {
@@ -97,52 +95,58 @@ export async function deleteBookById(id) {
     const query = 'DELETE FROM books WHERE id = $1';
     const result = await client.query(query, [id]);
     if (result.rowCount === 0) {
-      return false;
-    } else{
-    return true}
-
-  } catch (error) {
-    console.log(`Error: ${error.message}`);
-    throw new BadGateway('Error deleting book!');
-  } finally {
-    if (client) {
-      client.release();
+      throw new BadRequest('BOOK_NOT_FOUND');
     }
-  } 
+    return true;
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    if (error instanceof BadRequest) {
+      throw error;
+    }
+    throw new BadGateway('ERROR_DELETING_BOOK');
+  } finally {
+    if (client) client.release();
+  }
 }
 
-export async function updateBookbyId(id, data){
+export async function updateBookbyId(id, data) {
   let client;
   try {
-     client = await pool.connect();
-     const setClause = [];
-     const values = [];
-     let index = 1;
+    client = await pool.connect();
 
-     for (const [key, value] of Object.entries(data)) {
-         setClause.push(`${key} = $${index}`);
-         values.push(value);
-         index++;
-     }
-
-     values.push(id);
-
-     const query = `UPDATE books SET ${setClause.join(', ')} WHERE id = $${index}`;
-
-     const result = await client.query(query, values);
-
-     if (result.rowCount === 0) {
-         return false; 
-     }
-
-     return true;
-
-  } catch (error) {
-    console.log(`Error: ${error.message}`);
-    throw new BadGateway('Error updating book!');
-  } finally {
-    if (client) {
-      client.release();
+    // Check if the book exists through id
+    const checkQuery = 'SELECT 1 FROM books WHERE id = $1';
+    const checkResult = await client.query(checkQuery, [id]);
+    if (checkResult.rowCount === 0) {
+      throw new BadRequest('NO_BOOK_UPDATED');
     }
-  } 
+
+    // Prepare the update query
+    const setClause = [];
+    const values = [];
+    let index = 1;
+
+    for (const [key, value] of Object.entries(data)) {
+      setClause.push(`${key} = $${index}`);
+      values.push(value);
+      index++;
+    }
+
+    values.push(id);
+
+    const query = `UPDATE books SET ${setClause.join(', ')} WHERE id = $${index}`;
+    const result = await client.query(query, values);
+    if (result.rowCount === 0) {
+      throw new BadRequest('BOOK_NOT_UPDATED');
+    }
+    return true;
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    if (error instanceof BadRequest) {
+      throw error;
+    }
+    throw new BadGateway('ERROR_UPDATING_BOOK:');
+  } finally {
+    if (client) client.release();
+  }
 }

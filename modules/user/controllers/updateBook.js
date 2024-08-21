@@ -1,34 +1,16 @@
 import { updateBookbyId } from "../services/connection.js";
 import { AppError, BadRequest, Unauthorized } from "../services/error.js";
+import chalk from 'chalk';
 
 async function updateBook(req, res){
-    console.log('This is Update of Books')
+    console.log(chalk.blackBright.bgGreen.bold('This is Update of Books'));
     try{
         const id = req.body.id;
         const title = req.body.title;
-        if (!title){
-            throw new BadRequest('Title field required!')
-        }
-        if (typeof title !== 'string') {
-            throw new BadRequest('Invalid format of title!');
-        }
-        
         const author = req.body.author;
-        if (!author){
-            throw new BadRequest('Author field required!')
-        }
-        if (typeof author !== 'string' ) {
-            throw new BadRequest('Invalid format of author!');
-        }
-      
         const publishedDate = req.body.publishedDate;
-        if (!publishedDate){
-            throw new BadRequest('PublishedDate field required!')
-        }
         const parsedDate = new Date(publishedDate);
-        if (isNaN(parsedDate.getTime())) {
-            throw new BadRequest('Invalid format of publishedDate!');
-        }
+   
         const formattedData = {
             title: title,
             author: author,
@@ -36,7 +18,7 @@ async function updateBook(req, res){
         }
         const isUpdated = await updateBookbyId(id, formattedData)
         if(!isUpdated){
-            throw new BadRequest('Error in updating book!')
+            throw new BadRequest('BOOK_UPDATE_FAILED')
         }
         
         const response = {

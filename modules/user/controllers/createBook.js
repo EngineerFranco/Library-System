@@ -1,34 +1,15 @@
 import { AppError, BadRequest, Unauthorized } from "../services/error.js";
 import { saveBook } from "../services/connection.js";
+import chalk from 'chalk';
+
 
 async function createBook(req, res){
-    console.log('This is Creation of Books')
+    console.log(chalk.blackBright.bgGreen.bold('Creating Book'));
     try{
         const title = req.body.title;
-        if (!title){
-            throw new BadRequest('Title field required!')
-        }
-        if (typeof title !== 'string') {
-            throw new BadRequest('Invalid format of title!');
-        }
-        
         const author = req.body.author;
-        if (!author){
-            throw new BadRequest('Author field required!')
-        }
-        if (typeof author !== 'string' ) {
-            throw new BadRequest('Invalid format of author!');
-        }
-      
         const publishedDate = req.body.publishedDate;
-        if (!publishedDate){
-            throw new BadRequest('PublishedDate field required!')
-        }
         const parsedDate = new Date(publishedDate);
-        if (isNaN(parsedDate.getTime())) {
-            throw new BadRequest('Invalid format of publishedDate!');
-        }
-        console.log(`REQ: ${title}, ${author}, ${publishedDate}`);
 
         const reqData = {
             title: title,
@@ -37,12 +18,12 @@ async function createBook(req, res){
         }
         const isCreated = await saveBook(reqData);
         if(!isCreated){
-            throw new BadRequest('Error in creating book!')
+            throw new BadRequest('BOOK_CREATED_FAILED')
         }
         
         const response = {
             httpCode: 200,
-            httpMessage: 'Successfully created new book!',
+            httpMessage: 'SUCCESSFULY_CREATED_BOOK',
         };
         
         return res.status(200).json(response);

@@ -1,8 +1,9 @@
 import { deleteBookById } from "../services/connection.js";
 import { AppError, BadGateway, BadRequest, Unauthorized } from "../services/error.js";
+import chalk from 'chalk';
 
 async function deleteBook(req, res){
-    console.log('This is Deletion of Books')
+    console.log(chalk.blackBright.bgGreen.bold('This is Deletion of Books'));
     try{
         const id = req.params.id; 
         console.log(`REQ: ${id}`);
@@ -13,7 +14,7 @@ async function deleteBook(req, res){
 
         const response = {
             httpCode: 200,
-            httpMessage: `Successfuly deleted!`,
+            httpMessage: `SUCCESSFULY_DELETED_BOOK`,
         };
         
         return res.status(200).json(response);
