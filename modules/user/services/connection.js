@@ -46,7 +46,7 @@ export async function getBookById(id) {
     if (result.rowCount === 0) {
       throw new BadRequest('BOOK_NOT_FOUND');
     }
-    return result.rows[0]; // Assuming you want a single book
+    return result.rows[0];
   } catch (error) {
     console.error(`Error: ${error.message}`);
     if (error instanceof BadRequest) {
@@ -118,7 +118,7 @@ export async function updateBookbyId(id, data) {
     const checkQuery = 'SELECT 1 FROM books WHERE id = $1';
     const checkResult = await client.query(checkQuery, [id]);
     if (checkResult.rowCount === 0) {
-      throw new BadRequest('NO_BOOK_UPDATED');
+      throw new BadRequest('NO_BOOK_FOUND');
     }
 
     // Prepare the update query
@@ -134,18 +134,20 @@ export async function updateBookbyId(id, data) {
 
     values.push(id);
 
-    const query = `UPDATE books SET ${setClause.join(', ')} WHERE id = $${index}`;
+    const query = `UPDATE books SET ${setClause.join(', ')} WHERE id = $${index} RETURNING *`;
     const result = await client.query(query, values);
     if (result.rowCount === 0) {
       throw new BadRequest('BOOK_NOT_UPDATED');
     }
-    return true;
+    
+    // Return the updated data
+    return result.rows[0];
   } catch (error) {
     console.error(`Error: ${error.message}`);
     if (error instanceof BadRequest) {
       throw error;
     }
-    throw new BadGateway('ERROR_UPDATING_BOOK:');
+    throw new BadGateway('ERROR_UPDATING_BOOK');
   } finally {
     if (client) client.release();
   }

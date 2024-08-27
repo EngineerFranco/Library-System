@@ -1,0 +1,29 @@
+/* Custom styling for the About Us page */
+
+body {
+    background-color: #212529; /* Dark background for the body */
+    color: #e9ecef; /* Light text color */
+}
+.btn:hover {
+    transform: scale(1.05); /* Slightly increase button size */
+    transition: transform 0.2s ease-in-out; /* Smooth transition effect */
+}
+.container {
+    background-color: #343a40; /* Dark background for the container */
+    padding: 2rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.5s ease, transform 0.7s ease;
+}
+.container:hover {
+    background-color: #6c757d; /* Slightly lighter background on hover */
+    background-color: #6c757d; /* Slightly lighter background on hover */
+    transform: scale(1.02); /* Slightly increase size on hover */
+}
+
+h1 {
+    color: #e9ecef; /* Light color for the heading */
+}
+
+p {
+    color: #e9ecef; /* Light color for the text */
+}

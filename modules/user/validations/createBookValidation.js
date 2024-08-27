@@ -1,4 +1,5 @@
 export const validateCreateBook = (req, res, next) => {
+    console.log("REQ:", req.body)
     const { title, author, publishedDate } = req.body;
     let errors = [];
 
@@ -20,11 +21,12 @@ export const validateCreateBook = (req, res, next) => {
         errors.push('INVALID_PUBLISHED_DATE');
     }
 
-    if (errors.length > 0) {
-        return res.status(400).json({
-            'httpCode': '400',
-            'httpMessage': 'BAD_REQUEST',
-            'moreInformation': errors,
+     if (errors.length > 0) {
+        console.log("ERRORS:", errors);
+        return res.status(400).render('error', {
+            httpCode: 400,
+            httpMessage: 'BAD_REQUEST',
+            moreInformation: errors
         });
     }
 

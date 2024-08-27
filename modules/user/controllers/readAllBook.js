@@ -10,28 +10,28 @@ async function readBook(req, res){
         if(!data || data === 0){
             throw new BadRequest('NO_BOOKS_AVAILABLE')
         }
-        const response = {
-            httpCode: 200,
-            httpMessage: data,
-        };
-        
-        return res.status(200).json(response);
+        return res.render('readAllBook', {
+            books: data
+        });
         
     } 
     
     catch(error){
 
-        if(error instanceof AppError){
-            return res.status(error.httpCode).json({
+        console.error('Error encountered:', error); 
+
+        if (error instanceof AppError) {
+            return res.status(error.httpCode).render('error', {
                 httpCode: error.httpCode,
-                httpMessage: error.message
-            })
+                httpMessage: error.message,
+                moreInformation: error.message
+            });
         }
-        const response = {
+        return res.status(500).render('error', {
             httpCode: 500,
-            httpMessage: `ERROR: ${error.message}`
-        }
-        return res.status(500).json(response)
+            httpMessage: error.message,
+            moreInformation: error.message
+        });
     }
 }
 

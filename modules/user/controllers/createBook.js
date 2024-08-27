@@ -1,6 +1,7 @@
 import { AppError, BadRequest, Unauthorized } from "../services/error.js";
 import { saveBook } from "../services/connection.js";
 import chalk from 'chalk';
+import { format } from 'date-fns';
 
 
 async function createBook(req, res){
@@ -16,33 +17,44 @@ async function createBook(req, res){
             author: author,
             publishedDate: parsedDate
         }
-        const isCreated = await saveBook(reqData);
-        if(!isCreated){
+        const data = await saveBook(reqData);
+        if(!data){
             throw new BadRequest('BOOK_CREATED_FAILED')
         }
+
+        // Format the date
+        const formattedDate = format(new Date(data.published_date), 'MMMM dd, yyyy');
+
+        const book = {
+            id : data.id,
+            title: data.title,
+            author: data.author,
+            date: formattedDate
+        }
         
-        const response = {
-            httpCode: 200,
-            httpMessage: 'SUCCESSFULY_CREATED_BOOK',
-        };
-        
-        return res.status(200).json(response);
-        
+        return res.render('createStatus', {
+            success: true,
+            message: 'Book successfully created!',
+            book: book
+        });
     } 
     
     catch(error){
 
-        if(error instanceof AppError){
-            return res.status(error.httpCode).json({
+        console.error('Error encountered:', error); 
+
+        if (error instanceof AppError) {
+            return res.status(error.httpCode).render('error', {
                 httpCode: error.httpCode,
-                httpMessage: error.message
-            })
+                httpMessage: error.message,
+                moreInformation: error.message
+            });
         }
-        const response = {
+        return res.status(500).render('error', {
             httpCode: 500,
-            httpMessage: `ERROR: ${error.message}`
-        }
-        return res.status(500).json(response)
+            httpMessage: error.message,
+            moreInformation: error.message
+        });
     }
    
 }

@@ -1,7 +1,15 @@
 export const validateUpdateBook = (req, res, next) => {
     console.log('This is Validate Update.')
-    const { title, author, publishedDate } = req.body;
+
+    const {title, author, publishedDate } = req.body;
+    const { id } = req.params; 
     let errors = [];
+
+    if (!id || id.trim() === '') { 
+        errors.push('ID_REQUIRED');
+    } else if (!/^\d+$/.test(id)) { 
+        errors.push('ID_MUST_BE_NUMERIC');
+    }
 
     if (!title) {
         errors.push('TITLE_REQUIRED');
@@ -22,10 +30,11 @@ export const validateUpdateBook = (req, res, next) => {
     }
 
     if (errors.length > 0) {
-        return res.status(400).json({
-            'httpCode': '400',
-            'httpMessage': 'BAD_REQUEST',
-            'moreInformation': errors,
+        console.log("ERRORS:", errors);
+        return res.status(400).render('error', {
+            httpCode: 400,
+            httpMessage: 'BAD_REQUEST',
+            moreInformation: errors
         });
     }
 

@@ -5,7 +5,7 @@ import chalk from 'chalk';
 async function updateBook(req, res){
     console.log(chalk.blackBright.bgGreen.bold('This is Update of Books'));
     try{
-        const id = req.body.id;
+        const { id } = req.params; 
         const title = req.body.title;
         const author = req.body.author;
         const publishedDate = req.body.publishedDate;
@@ -16,31 +16,34 @@ async function updateBook(req, res){
             author: author,
             published_date: parsedDate
         }
-        const isUpdated = await updateBookbyId(id, formattedData)
-        if(!isUpdated){
+        const data = await updateBookbyId(id, formattedData)
+        console.log("data:", data)
+        if(!data){
             throw new BadRequest('BOOK_UPDATE_FAILED')
         }
-        
-        const response = {
-            httpCode: 200,
-            httpMessage: 'Successfully updated new book!',
-        };
-        
-        return res.status(200).json(response);
+        console.log("Book: ", data);
+        return res.render('updateStatus', {
+            success: true,
+            message: 'Book successfully updated!',
+            book: data
+        });
         
 
     }catch(error){
-        if(error instanceof AppError){
-            return res.status(error.httpCode).json({
+        console.error('Error encountered:', error); 
+
+        if (error instanceof AppError) {
+            return res.status(error.httpCode).render('error', {
                 httpCode: error.httpCode,
-                httpMessage: error.message
-            })
+                httpMessage: error.message,
+                moreInformation: error.message
+            });
         }
-        const response = {
+        return res.status(500).render('error', {
             httpCode: 500,
-            httpMessage: `ERROR: ${error.message}`
-        }
-        return res.status(500).json(response)
+            httpMessage: error.message,
+            moreInformation: error.message
+        });
     }
 }
 

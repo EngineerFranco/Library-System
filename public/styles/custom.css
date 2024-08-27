@@ -1,0 +1,78 @@
+/* General body styling */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #222831;
+  color: #EEEEEE;
+  margin: 0;
+  padding-top: 70px; /* Adjust to align with the fixed navbar */
+  padding-bottom: 50px; /* Adjust to align with the fixed footer */
+}
+
+/* Header styles */
+.navbar {
+  background-color: #00ADB5;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #EEEEEE;
+}
+
+.logo-img {
+  width: 40px;
+  height: 40px;
+}
+
+.nav-link {
+  color: #EEEEEE;
+  transition: color 0.3s ease;
+}
+
+.nav-link.active, .nav-link:hover {
+  color: #393E46; /* Darker highlight color */
+}
+.btn:hover {
+  transform: scale(1.05); /* Slightly increase button size */
+  transition: transform 0.2s ease-in-out; /* Smooth transition effect */
+}
+
+/* Main content styles */
+.content-wrapper {
+  padding: 2rem;
+  background-color: #393E46;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  min-height: calc(100vh - 120px); /* Adjust for header and footer height */
+}
+
+/* Footer styles */
+.footer {
+  background-color: #00ADB5;
+  color: #EEEEEE;
+  padding: 10px 0;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  z-index: 1030; /* Ensure footer is on top of other elements */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar-brand {
+      font-size: 1.25rem;
+  }
+
+  .logo-img {
+      width: 35px;
+      height: 35px;
+  }
+
+  .logo-text {
+      font-size: 1rem;
+  }
+
+  .content-wrapper {
+      padding: 1rem;
+  }
+}

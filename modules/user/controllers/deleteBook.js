@@ -1,38 +1,39 @@
 import { deleteBookById } from "../services/connection.js";
-import { AppError, BadGateway, BadRequest, Unauthorized } from "../services/error.js";
+import { AppError, BadRequest } from "../services/error.js";
 import chalk from 'chalk';
 
 async function deleteBook(req, res){
     console.log(chalk.blackBright.bgGreen.bold('This is Deletion of Books'));
     try{
-        const id = req.params.id; 
+        const id = req.params.id.trim(); 
         console.log(`REQ: ${id}`);
         const isDeleted = await deleteBookById(id);
         if(!isDeleted){
-            throw new BadRequest("Book not found!")
+            throw new BadRequest("Book not found!");
         }
-
-        const response = {
-            httpCode: 200,
-            httpMessage: `SUCCESSFULY_DELETED_BOOK`,
-        };
         
-        return res.status(200).json(response);
+        // Render the view with a success message
+        return res.render('deleteBook', {
+            success: true,
+            message: 'Book successfully deleted!'
+        });
     } 
     catch(error){
-        if(error instanceof AppError){
-            return res.status(error.httpCode).json({
+        console.error('Error encountered:', error); 
+
+        if (error instanceof AppError) {
+            return res.status(error.httpCode).render('error', {
                 httpCode: error.httpCode,
-                httpMessage: error.message
-            })
+                httpMessage: error.message,
+                moreInformation: error.message
+            });
         }
-        const response = {
+        return res.status(500).render('error', {
             httpCode: 500,
-            httpMessage: `ERROR: ${error.message}`
-        }
-        return res.status(500).json(response)
+            httpMessage: error.message,
+            moreInformation: error.message
+        });
     }
-    
 }
 
-export default deleteBook
+export default deleteBook;
